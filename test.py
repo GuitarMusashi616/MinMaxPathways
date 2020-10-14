@@ -117,5 +117,12 @@ def test_node_actions():
         print(f"{string}: {[dirs[a] for a in node.actions()]}")
 
 
+def test_breadth_winner():
+    print()
+    state = state_2()
+    print(state)
+    print(state.is_winner_breadth_first())
+
+
 if __name__ == '__main__':
-    test_node_actions()
+    test_breadth_winner()
