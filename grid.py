@@ -10,14 +10,26 @@ class Direction:
 
 class Grid:
     """Methods and states for representing the grid, used for minmax algorithm"""
+
     def __init__(self, n):
         self.grid = np.zeros((n, n), dtype=np.int8)
+        for r in range(self.grid.shape[0] - 1, -1, -1):
+            for c in range(self.grid.shape[1]):
+                if not r % 2 and c % 2:  # H: even row odd column
+                    self.grid[r][c] = 1
+                elif r % 2 and not c % 2:  # M: odd row even column
+                    self.grid[r][c] = 2
 
     def __repr__(self):
         string = ''
-        for r in range(len(self.grid)-1,-1,-1):
+        for r in range(len(self.grid) - 1, -1, -1):
             for c in range(len(self.grid)):
-                string += str(self.grid[r][c]) if self.grid[r][c] != 0 else '-'
+                if self.grid[r][c] == 1:
+                    string += 'H'
+                elif self.grid[r][c] == 2:
+                    string += 'M'
+                else:
+                    string += '-'
             string += '\n'
         return string
 
@@ -26,7 +38,7 @@ class Grid:
 
     def in_last_column(self, coord):
         # assert type(coord) is tuple and len(coord) == 2, "Coord not valid"
-        if coord[1] == len(self.grid)-1:
+        if coord[1] == len(self.grid) - 1:
             return True
         return False
 
@@ -39,10 +51,10 @@ class Grid:
             if self.in_last_column((r, c)):
                 return r, c
             for dr, dc in [(0, -1), (0, 1), (-1, 0), (1, 0)]:  # left, right, down, up
-                new_coord = r+dr, c+dc
+                new_coord = r + dr, c + dc
                 if self.within_bounds(new_coord) and new_coord not in exclude:
                     # check number
-                    if self.grid[r+dr][c+dc] == self.grid[r][c]:  # both a 1 or both a 2
+                    if self.grid[r + dr][c + dc] == self.grid[r][c]:  # both a 1 or both a 2
                         queue.append(new_coord)
                         exclude.add(new_coord)
 
@@ -53,3 +65,7 @@ class Grid:
             if self.grid[r][0] == 1 or self.grid[r][0] == 2:
                 coords.append((r, 0))
         return coords
+
+    # def __eq__(self, other):
+    #     assert isinstance(other, Grid)
+    #     return self.grid == other.grid

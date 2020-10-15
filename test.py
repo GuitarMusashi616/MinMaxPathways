@@ -9,7 +9,7 @@ from grid import *
 
 
 def state_1():
-    state = Grid(5)
+    state = Grid(10)
     state.grid[1][0] = 1
     state.grid[2][0] = 1
     state.grid[3][0] = 1
@@ -117,6 +117,12 @@ def test_node_actions():
         print(f"{string}: {[dirs[a] for a in node.actions()]}")
 
 
+def test_initial_state():
+    print()
+    init = Grid(5)
+    print(init)
+
+
 def test_breadth_winner():
     print()
     state = state_2()
@@ -125,4 +131,4 @@ def test_breadth_winner():
 
 
 if __name__ == '__main__':
-    test_breadth_winner()
+    test_initial_state()
