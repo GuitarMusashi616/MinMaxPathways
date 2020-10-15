@@ -121,10 +121,16 @@ def test_initial_state():
     print()
     init = Grid(5)
     print(init)
+    print(init.is_full())
     other = state_2()
     print(other)
+    print(other.is_full())
     other.reset_grid(len(other.grid))
     print(other)
+    print(other.is_full())
+    other.grid = np.array([[1 for _ in range(10)] for _ in range(10)])
+    print(other)
+    print(other.is_full())
 
 
 def test_breadth_winner():
@@ -132,6 +138,10 @@ def test_breadth_winner():
     state = state_2()
     print(state)
     print(state.is_winner_breadth_first())
+
+
+def test_draw():
+    pass
 
 
 if __name__ == '__main__':

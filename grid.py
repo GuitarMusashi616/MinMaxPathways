@@ -74,6 +74,16 @@ class Grid:
                 coords.append((r, 0))
         return coords
 
-    # def __eq__(self, other):
-    #     assert isinstance(other, Grid)
-    #     return self.grid == other.grid
+    def is_full(self):
+        """Returns true if all cells in grid have a 1 or 2"""
+        for r in range(len(self.grid) - 1, -1, -1):
+            for c in range(len(self.grid)):
+                if self.grid[r][c] == 0:
+                    return False
+        return True
+
+    def check_for_a_win(self):
+        # M path from left to right - M wins
+        # H path from left to right - H wins
+        # Every cell full and there is no winner - Draw
+        pass
