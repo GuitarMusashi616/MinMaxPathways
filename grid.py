@@ -33,7 +33,7 @@ class Grid:
     def is_winner_breadth_first(self):
         """Returns the coord from any link of coords that stretch from the 0th column to the last column"""
         queue = self.get_0_column()
-        exclude = set(queue)  # todo: put items in definition to make it a set
+        exclude = set(queue)
         while queue:
             r, c = queue.pop(0)
             if self.in_last_column((r, c)):
@@ -42,7 +42,7 @@ class Grid:
                 new_coord = r+dr, c+dc
                 if self.within_bounds(new_coord) and new_coord not in exclude:
                     # check number
-                    if self.grid[r+dr][c+dc] == self.grid[r][c]:
+                    if self.grid[r+dr][c+dc] == self.grid[r][c]:  # both a 1 or both a 2
                         queue.append(new_coord)
                         exclude.add(new_coord)
 
