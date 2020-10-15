@@ -12,13 +12,7 @@ class Grid:
     """Methods and states for representing the grid, used for minmax algorithm"""
 
     def __init__(self, n):
-        self.grid = np.zeros((n, n), dtype=np.int8)
-        for r in range(self.grid.shape[0] - 1, -1, -1):
-            for c in range(self.grid.shape[1]):
-                if not r % 2 and c % 2:  # H: even row odd column
-                    self.grid[r][c] = 1
-                elif r % 2 and not c % 2:  # M: odd row even column
-                    self.grid[r][c] = 2
+        self.grid = Grid.create_grid(n)
 
     def __repr__(self):
         string = ''
@@ -32,6 +26,20 @@ class Grid:
                     string += '-'
             string += '\n'
         return string
+
+    @staticmethod
+    def create_grid(n):
+        grid = np.zeros((n, n), dtype=np.int8)
+        for r in range(grid.shape[0] - 1, -1, -1):
+            for c in range(grid.shape[1]):
+                if not r % 2 and c % 2:  # H: even row odd column
+                    grid[r][c] = 1
+                elif r % 2 and not c % 2:  # M: odd row even column
+                    grid[r][c] = 2
+        return grid
+
+    def reset_grid(self, n):
+        self.grid = Grid.create_grid(n)
 
     def within_bounds(self, coord):
         return 0 <= coord[0] < self.grid.shape[0] and 0 <= coord[1] < self.grid.shape[1]

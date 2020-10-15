@@ -121,6 +121,10 @@ def test_initial_state():
     print()
     init = Grid(5)
     print(init)
+    other = state_2()
+    print(other)
+    other.reset_grid(len(other.grid))
+    print(other)
 
 
 def test_breadth_winner():
