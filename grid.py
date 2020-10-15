@@ -1,11 +1,41 @@
 import numpy as np
-
+from random import choice
+import math
 
 class Direction:
     LEFT = 0
     RIGHT = 1
     DOWN = 2
     UP = 3
+
+
+def play_game():
+    grid = Grid(10)
+    is_players_turn = grid.get_who_moves_first()
+    game_over = False
+    while not game_over:
+        if is_players_turn:
+            grid.get_human_player_move()
+            is_players_turn = False
+        else:
+            grid.get_computer_player_move()
+            is_players_turn = True
+        game_over = grid.check_for_a_win()
+
+
+def get_integer_input(input_str='Type an integer: ', lower_bound=0, upper_bound=math.inf):
+    x = None
+    while True:
+        try:
+            x = input(input_str)
+            x = int(x)
+            assert lower_bound <= x <= upper_bound, f"Integer must be in the range [{lower_bound}, {upper_bound}]"
+            break
+        except ValueError:
+            print('Please type an integer')
+        except AssertionError as e:
+            print(e)
+    return x
 
 
 class Grid:
@@ -26,6 +56,24 @@ class Grid:
                     string += '-'
             string += '\n'
         return string
+
+    @staticmethod
+    def get_who_moves_first():
+        # prompt user "want to go first"
+        letter = None
+        while not letter:
+            try:
+                letter = input("Want to go first? (y/n)\n")
+                assert type(letter) == str, "input must be a string"
+                letter = letter.lower()
+                assert letter == 'y' or letter == 'n', "input must be a y or an n"
+            except AssertionError as e:
+                print(e)
+            # if False then skip 1st turn
+        if letter == 'y':
+            return True
+        elif letter == 'n':
+            return False
 
     @staticmethod
     def create_grid(n):
@@ -86,4 +134,42 @@ class Grid:
         # M path from left to right - M wins
         # H path from left to right - H wins
         # Every cell full and there is no winner - Draw
-        pass
+        coord = self.is_winner_breadth_first()
+        if coord:
+            if self.grid[coord[0]][coord[1]] == 1:
+                print("You Win!")
+            elif self.grid[coord[0]][coord[1]] == 2:
+                print("You Lose!")
+            return True
+        elif self.is_full():
+            print("Draw!")
+            return True
+        return False
+
+    def viable_moves(self):
+        moves = []
+        for r in range(self.grid.shape[0] - 1, -1, -1):
+            for c in range(self.grid.shape[1]):
+                if self.grid[r][c] == 0:
+                    moves.append((r, c))
+        return moves
+
+    def get_human_player_move(self):
+        print(self)
+        print(f"Option: " + str(self.viable_moves()))
+        r = get_integer_input('Row: ', 0, len(self.grid) - 1)
+        c = get_integer_input('Col: ', 0, len(self.grid) - 1)
+        self.grid[r][c] = 1
+        print()
+
+    def get_computer_player_move(self):
+        # find viable moves
+        moves = self.viable_moves()
+        # pick one randomly
+        r, c = choice(moves)
+        self.grid[r][c] = 2
+        print(f"Computer picks {r}, {c}\n")
+
+
+if __name__ == '__main__':
+    play_game()
