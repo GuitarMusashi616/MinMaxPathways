@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from random import randint
+from random import randint, choice
 
 from grid import *
 
@@ -140,9 +140,42 @@ def test_breadth_winner():
     print(state.is_winner_breadth_first())
 
 
-def test_draw():
-    pass
+def test_path_coords():
+    print()
+    state = state_2()
+    print(state)
+    print(state.get_path_coords())
+    group = set()
+    print()
+    print(state.get_connected((1, 3), group))
+    print(group)
+    path_groups = state.get_path_groups()
+    print(path_groups)
+    print(state.count_unique_columns(path_groups))
+
+
+def test_static_eval():
+    print()
+    state = Grid(10)
+    print(state)
+    print(state.static_evaluation(1))
+    print(state.static_evaluation(2))
+
+    for _ in range(20):
+        r, c = choice(state.viable_moves())
+        state.grid[r][c] = randint(1, 2)
+
+    print(state)
+    print(state.static_evaluation(1))
+    print(state.static_evaluation(2))
+
+
+def test_pick_best():
+    print()
+    state = state_2()
+    print(state)
+    print(state.pick_best_next_choice(2))
 
 
 if __name__ == '__main__':
-    test_initial_state()
+    test_pick_best()

@@ -2,6 +2,7 @@ import numpy as np
 from random import choice
 import math
 
+
 class Direction:
     LEFT = 0
     RIGHT = 1
@@ -136,12 +137,14 @@ class Grid:
         # Every cell full and there is no winner - Draw
         coord = self.is_winner_breadth_first()
         if coord:
+            print(self)
             if self.grid[coord[0]][coord[1]] == 1:
                 print("You Win!")
             elif self.grid[coord[0]][coord[1]] == 2:
                 print("You Lose!")
             return True
         elif self.is_full():
+            print(self)
             print("Draw!")
             return True
         return False
@@ -155,20 +158,113 @@ class Grid:
         return moves
 
     def get_human_player_move(self):
+        moves = self.viable_moves()
         print(self)
-        print(f"Option: " + str(self.viable_moves()))
-        r = get_integer_input('Row: ', 0, len(self.grid) - 1)
-        c = get_integer_input('Col: ', 0, len(self.grid) - 1)
+        print(f"Options: " + str(moves))
+        print(f"Best Option: " + str(self.player_best_next_choice()))
+
+        r, c = None, None
+        is_valid_move = False
+        # not occupied and within bounds
+        while not is_valid_move:
+            r = get_integer_input('Row: ', 0, len(self.grid) - 1)
+            c = get_integer_input('Col: ', 0, len(self.grid) - 1)
+            if (r, c) in moves:
+                is_valid_move = True
+            else:
+                print("Move is not valid, try another option")
+
         self.grid[r][c] = 1
         print()
 
     def get_computer_player_move(self):
-        # find viable moves
-        moves = self.viable_moves()
-        # pick one randomly
-        r, c = choice(moves)
+        coord, score = self.computer_best_next_choice()
+        r, c = coord
         self.grid[r][c] = 2
-        print(f"Computer picks {r}, {c}\n")
+        print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
+
+    def get_path_coords(self, num=2):
+        # 1 for human, 2 for computer
+        coords = set()
+        for r in range(self.grid.shape[0] - 1, -1, -1):
+            for c in range(self.grid.shape[1]):
+                if self.grid[r][c] == num:
+                    coords.add((r, c))
+        return coords
+
+    def get_connected(self, coord, group):
+        r, c = coord
+        group.add(coord)
+        for dr, dc in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+            new_coord = r + dr, c + dc
+            if self.within_bounds(new_coord) and new_coord not in group and self.grid[r + dr][c + dc] == self.grid[r][c]:
+                self.get_connected(new_coord, group)
+        return group
+
+    def get_path_groups(self, num=2):
+        path_groups = []
+        path_coords = self.get_path_coords(num)
+        while path_coords:
+            r, c = path_coords.pop()
+            group = set()
+            self.get_connected((r, c), group)
+            for coord in group:
+                if coord in path_coords:
+                    path_coords.remove(coord)
+            path_groups.append(group)
+        return path_groups
+
+    @staticmethod
+    def count_unique_columns(grouped_coords):
+        # grouped_coords is a list of sets
+        unique_columns_per_set = []
+        for subset in grouped_coords:
+            subset_column_numbers = set()
+            for coord in subset:
+                subset_column_numbers.add(coord[1])
+            unique_columns_per_set.append(len(subset_column_numbers))
+        return max(unique_columns_per_set)
+
+    def static_evaluation(self, relative_to_computer=False):
+        # higher score better for computer, lower score better for player
+        path_groups_human = self.get_path_groups(1)
+        path_groups_computer = self.get_path_groups(2)
+        if relative_to_computer:
+            return self.count_unique_columns(path_groups_computer) - self.count_unique_columns(path_groups_human)
+        else:
+            return self.count_unique_columns(path_groups_human) - self.count_unique_columns(path_groups_computer)
+
+    def player_best_next_choice(self):
+        # higher score better for player
+        moves = self.viable_moves()
+        assert moves, "no viable moves left"
+        # do move, analyze, undo move
+        best_score = -math.inf
+        best_coord = None
+        for r, c in moves:
+            self.grid[r][c] = 1
+            score = self.static_evaluation()
+            if score > best_score:
+                best_score = score
+                best_coord = (r, c)
+            self.grid[r][c] = 0
+        return best_coord, best_score
+
+    def computer_best_next_choice(self):
+        # lower score better for computer
+        moves = self.viable_moves()
+        assert moves, "no viable moves left"
+        # do move, analyze, undo move
+        best_score = math.inf
+        best_coord = None
+        for r, c in moves:
+            self.grid[r][c] = 2
+            score = self.static_evaluation()
+            if score < best_score:
+                best_score = score
+                best_coord = (r, c)
+            self.grid[r][c] = 0
+        return best_coord, best_score
 
 
 if __name__ == '__main__':
