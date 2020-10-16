@@ -177,5 +177,31 @@ def test_pick_best():
     print(state.pick_best_next_choice(2))
 
 
+def test_clone():
+    print()
+    state = state_2()
+    clone = state.clone()
+
+    print(state)
+    print(clone)
+    print("Initial Grids")
+
+    for _ in range(20):
+        r, c = choice(state.viable_moves())
+        state.grid[r][c] = randint(1, 2)
+
+    print("1st grid changed")
+    print(state)
+    print(clone)
+
+    for _ in range(20):
+        r, c = choice(clone.viable_moves())
+        clone.grid[r][c] = randint(1, 2)
+
+    print("2nd grid changed")
+    print(state)
+    print(clone)
+
+
 if __name__ == '__main__':
-    test_pick_best()
+    test_clone()

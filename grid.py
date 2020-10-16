@@ -58,6 +58,11 @@ class Grid:
             string += '\n'
         return string
 
+    def clone(self):
+        result = Grid(5)
+        result.grid = self.grid.copy()
+        return result
+
     @staticmethod
     def get_who_moves_first():
         # prompt user "want to go first"
@@ -224,6 +229,8 @@ class Grid:
                 subset_column_numbers.add(coord[1])
             unique_columns_per_set.append(len(subset_column_numbers))
         return max(unique_columns_per_set)
+        # future possibility V
+        # return sum([math.pow(2, num_unique_columns) for num_unique_columns in unique_columns_per_set])
 
     def static_evaluation(self, relative_to_computer=False):
         # higher score better for computer, lower score better for player
@@ -266,6 +273,13 @@ class Grid:
             self.grid[r][c] = 0
         return best_coord, best_score
 
+    def player_minmax(self):
+        # WIP: finish player minmax and computer minmax
+        moves = self.viable_moves()
+        for r, c in moves:
+            grid = self.clone()
+            grid.grid[r][c] = 1
+            grid.computer_minmax()
 
 if __name__ == '__main__':
     play_game()
