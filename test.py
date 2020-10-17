@@ -39,6 +39,36 @@ def state_2():
     return state
 
 
+def state_3(simulated_turns=0, n=5):
+    state = Grid(n)
+    # state.grid = np.array([
+    #     [0, 0, 0, 0, 0],
+    #     [0, 1, 0, 2, 2],
+    #     [0, 1, 2, 0, 0],
+    #     [2, 2, 0, 0, 0],
+    #     [1, 1, 1, 1, 1],
+    # ], dtype=np.int8)
+
+    is_players_turn = True
+    for _ in range(simulated_turns):
+        moves = state.viable_moves()
+        if not moves:
+            return state
+        r, c = choice(moves)
+        if is_players_turn:
+            state.grid[r][c] = 1
+            is_players_turn = False
+        else:
+            state.grid[r][c] = 2
+            is_players_turn = True
+
+
+
+
+
+    return state
+
+
 def within_bounds(grid, coord):
     return 0 <= coord[0] < grid.shape[0] and 0 <= coord[1] < grid.shape[1]
 
@@ -203,5 +233,14 @@ def test_clone():
     print(clone)
 
 
+def test_minmax():
+    print()
+    state = state_3(6)
+    coord, score = state.retrieve_best_choice()
+    print(state)
+    print(state.static_evaluation())
+    print(coord, score)
+
+
 if __name__ == '__main__':
-    test_clone()
+    test_minmax()

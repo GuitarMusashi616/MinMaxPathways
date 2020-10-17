@@ -232,14 +232,11 @@ class Grid:
         # future possibility V
         # return sum([math.pow(2, num_unique_columns) for num_unique_columns in unique_columns_per_set])
 
-    def static_evaluation(self, relative_to_computer=False):
-        # higher score better for computer, lower score better for player
+    def static_evaluation(self):
+        # higher score better for human, lower score better for computer
         path_groups_human = self.get_path_groups(1)
         path_groups_computer = self.get_path_groups(2)
-        if relative_to_computer:
-            return self.count_unique_columns(path_groups_computer) - self.count_unique_columns(path_groups_human)
-        else:
-            return self.count_unique_columns(path_groups_human) - self.count_unique_columns(path_groups_computer)
+        return self.count_unique_columns(path_groups_human) - self.count_unique_columns(path_groups_computer)
 
     def player_best_next_choice(self):
         # higher score better for player
@@ -273,13 +270,37 @@ class Grid:
             self.grid[r][c] = 0
         return best_coord, best_score
 
-    def player_minmax(self):
+    def player_minmax(state):
         # WIP: finish player minmax and computer minmax
         moves = self.viable_moves()
         for r, c in moves:
             grid = self.clone()
             grid.grid[r][c] = 1
             grid.computer_minmax()
+
+    def minmax(self):
+        choices = self.retrieve_best_choice(func=max)
+
+    def retrieve_best_choice(self, coord=None, func = max):
+        assert func == min or func == max
+        moves = self.viable_moves()
+        if not moves:
+            return coord, self.static_evaluation()
+
+        choices = []
+        for r,c in moves:
+            grid = self.clone()
+            if func == max:
+                grid.grid[r][c] = 1
+                coord, score = grid.retrieve_best_choice((r,c),min)
+                choices.append(score)
+            else:
+                grid.grid[r][c] = 2
+                coord, score = grid.retrieve_best_choice((r,c),max)
+                choices.append(score)
+        return coord, func(choices)
+
+
 
 if __name__ == '__main__':
     play_game()
