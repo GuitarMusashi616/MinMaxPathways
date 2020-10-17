@@ -10,8 +10,8 @@ class Direction:
     UP = 3
 
 
-def play_game():
-    grid = Grid(10)
+def play_game(n=3):
+    grid = Grid(n)
     is_players_turn = grid.get_who_moves_first()
     game_over = False
     while not game_over:
@@ -166,7 +166,7 @@ class Grid:
         moves = self.viable_moves()
         print(self)
         print(f"Options: " + str(moves))
-        print(f"Best Option: " + str(self.player_best_next_choice()))
+        print(f"Best Option: " + str(self.retrieve_best_choice(func=max)))
 
         r, c = None, None
         is_valid_move = False
@@ -183,7 +183,7 @@ class Grid:
         print()
 
     def get_computer_player_move(self):
-        coord, score = self.computer_best_next_choice()
+        coord, score = self.retrieve_best_choice(func=min)
         r, c = coord
         self.grid[r][c] = 2
         print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
@@ -270,18 +270,7 @@ class Grid:
             self.grid[r][c] = 0
         return best_coord, best_score
 
-    def player_minmax(state):
-        # WIP: finish player minmax and computer minmax
-        moves = self.viable_moves()
-        for r, c in moves:
-            grid = self.clone()
-            grid.grid[r][c] = 1
-            grid.computer_minmax()
-
-    def minmax(self):
-        choices = self.retrieve_best_choice(func=max)
-
-    def retrieve_best_choice(self, coord=None, func = max):
+    def retrieve_best_choice(self, coord=None, func=max):
         assert func == min or func == max
         moves = self.viable_moves()
         if not moves:
