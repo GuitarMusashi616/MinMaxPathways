@@ -292,4 +292,4 @@ class Grid:
 
 
 if __name__ == '__main__':
-    play_game(4)
+    play_game()
