@@ -235,7 +235,7 @@ def test_clone():
 
 def test_minmax():
     print()
-    state = state_3(6)
+    state = state_3(0, 3)
     coord, score = state.retrieve_best_choice()
     print(state)
     print(state.static_evaluation())

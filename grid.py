@@ -1,7 +1,7 @@
 import numpy as np
 from random import choice
 import math
-
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 
 class Direction:
     LEFT = 0
@@ -270,6 +270,31 @@ class Grid:
             self.grid[r][c] = 0
         return best_coord, best_score
 
+    # def retrieve_best_choice(self, coord=None, func=max):
+    #     assert func == min or func == max
+    #     moves = self.viable_moves()
+    #     if not moves:
+    #         return coord, self.static_evaluation()
+    #
+    #     choices = []
+    #     for r,c in moves:
+    #         grid = self.clone()
+    #         if func == max:
+    #             grid.grid[r][c] = 1
+    #             coord, score = grid.retrieve_best_choice((r,c),min)
+    #             choices.append(score)
+    #         else:
+    #             grid.grid[r][c] = 2
+    #             coord, score = grid.retrieve_best_choice((r,c),max)
+    #             choices.append(score)
+    #     return coord, func(choices)
+
+    def minmax(self, coord=None, func=max):
+        executor = ThreadPoolExecutor()
+        future = executor.submit(Grid.retrieve_best_choice, self, executor, coord, func)
+        coord, score = future.result()
+        return coord, score
+
     def retrieve_best_choice(self, coord=None, func=max):
         assert func == min or func == max
         moves = self.viable_moves()
@@ -277,18 +302,21 @@ class Grid:
             return coord, self.static_evaluation()
 
         choices = []
-        for r,c in moves:
+        for r, c in moves:
             grid = self.clone()
-            if func == max:
-                grid.grid[r][c] = 1
-                coord, score = grid.retrieve_best_choice((r,c),min)
-                choices.append(score)
-            else:
-                grid.grid[r][c] = 2
-                coord, score = grid.retrieve_best_choice((r,c),max)
-                choices.append(score)
-        return coord, func(choices)
+            with ThreadPoolExecutor() as executor:
+                if func == max:
+                    grid.grid[r][c] = 1
+                    future = executor.submit(self.retrieve_best_choice, (r,c), min)
+                    coord, score = future.result()
+                    choices.append(score)
+                else:
+                    grid.grid[r][c] = 2
+                    future = executor.submit(self.retrieve_best_choice, (r,c), max)
+                    coord, score = future.result()
+                    choices.append(score)
 
+        return coord, func(choices)
 
 
 if __name__ == '__main__':
