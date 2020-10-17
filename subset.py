@@ -108,29 +108,62 @@ def determine_score(grid):
     return score
 
 
-def retrieve_best_choice(grid, coord):
-    # clone and modify grid
-    grid_copy = grid.copy()
-    grid_copy[coord[0]][coord[1]] = 1
-    # determine score of grid
-    return coord, static_evaluation(grid_copy)
+# def retrieve_best_choice(grid, coord, is_maximizing = True):
+#
+#     moves = viable_moves(grid)
+#     # clone and modify grid
+#     scores = []
+#     for move in moves:
+#         grid_copy = grid.copy()
+#         grid_copy[move[0]][move[1]] = 1
+#         # determine score of grid
+#         return coord, static_evaluation(grid_copy)
+
+
+def retrieve_best_choice(orig_grid, coord=None, is_maximizing=True):
+    moves = viable_moves(orig_grid)
+    if not moves:
+        return coord, static_evaluation(orig_grid)
+
+    choices = []
+    futures = []
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        for r, c in moves:
+            grid = orig_grid.copy()
+            if is_maximizing:
+                grid[r][c] = 1
+                futures.append(executor.submit(retrieve_best_choice, grid, (r, c), is_maximizing=True))
+            else:
+                grid[r][c] = 2
+                futures.append(executor.submit(retrieve_best_choice, grid, (r, c), is_maximizing=False))
+
+        for future in concurrent.futures.as_completed(futures):
+            loc, score = future.result()
+            choices.append(score)
+
+    if is_maximizing:
+        return coord, max(choices)
+    return coord, min(choices)
+
+
+# def main():
+#     grid = create_grid(5)
+#     moves = viable_moves(grid)
+#     for coord in moves:
+#         print(retrieve_best_choice(grid, coord))
 
 
 def main():
-    grid = create_grid(5)
-    moves = viable_moves(grid)
-    for coord in moves:
-        print(retrieve_best_choice(grid, coord))
+    grid = create_grid(3)
+    print(grid)
+    print(viable_moves(grid))
+    print(retrieve_best_choice(grid))
 
-
-def main2():
-    grid = create_grid(5)
-    moves = viable_moves(grid)
     # print(moves)
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = [executor.submit(retrieve_best_choice, grid, coord) for coord in moves]
-        for future in concurrent.futures.as_completed(futures):
-            print(future.result())
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     futures = [executor.submit(retrieve_best_choice, grid, coord) for coord in moves]
+    #     for future in concurrent.futures.as_completed(futures):
+    #         print(future.result())
 
 
 if __name__ == '__main__':
@@ -140,8 +173,8 @@ if __name__ == '__main__':
     print(finish-start)
     print()
 
-    start2 = time.perf_counter()
-    main2()
-    finish2 = time.perf_counter()
-    print(finish2-start2)
-    print()
+    # start2 = time.perf_counter()
+    # main2()
+    # finish2 = time.perf_counter()
+    # print(finish2-start2)
+    # print()
