@@ -127,7 +127,7 @@ def retrieve_best_choice(orig_grid, coord=None, is_maximizing=True):
 
     choices = []
     futures = []
-    with concurrent.futures.ProcessPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor() as executor:
         for r, c in moves:
             grid = orig_grid.copy()
             if is_maximizing:
@@ -154,7 +154,7 @@ def retrieve_best_choice(orig_grid, coord=None, is_maximizing=True):
 
 
 def main():
-    grid = create_grid(3)
+    grid = create_grid(4)
     print(grid)
     print(viable_moves(grid))
     print(retrieve_best_choice(grid))
