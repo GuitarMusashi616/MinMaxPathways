@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from random import randint, choice
-
+import time
 from grid import *
 
 
@@ -242,5 +242,34 @@ def test_minmax():
     print(coord, score)
 
 
+def test_depth_limit(n):
+    print()
+    state = state_3(5)
+    state.depth = 0
+    coord, score = state.retrieve_best_choice(depth_limit=n)
+    print(state)
+    print(coord, score)
+
+def time_depth_limit_difference():
+    c_5 = time.perf_counter()
+    test_depth_limit(math.inf)
+    c_4 = time.perf_counter()
+    test_depth_limit(4)
+    c_3 = time.perf_counter()
+    test_depth_limit(3)
+    c_2 = time.perf_counter()
+    test_depth_limit(2)
+    c_1 = time.perf_counter()
+    test_depth_limit(1)
+    c_0 = time.perf_counter()
+
+    print(f"inf depth: {c_4-c_5}")
+    print(f"depth 4: {c_3 - c_4}")
+    print(f"depth 3: {c_2- c_3}")
+    print(f"depth 2: {c_1 - c_2}")
+    print(f"depth 1: {c_0 - c_1}")
+
+
 if __name__ == '__main__':
-    test_minmax()
+    time_depth_limit_difference()
+

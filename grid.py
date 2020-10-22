@@ -42,8 +42,9 @@ def get_integer_input(input_str='Type an integer: ', lower_bound=0, upper_bound=
 class Grid:
     """Methods and states for representing the grid, used for minmax algorithm"""
 
-    def __init__(self, n):
+    def __init__(self, n, depth=0):
         self.grid = Grid.create_grid(n)
+        self.depth = depth
 
     def __repr__(self):
         string = ''
@@ -59,8 +60,9 @@ class Grid:
         return string
 
     def clone(self):
-        result = Grid(5)
+        result = Grid(0)
         result.grid = self.grid.copy()
+        result.depth = self.depth + 1
         return result
 
     @staticmethod
@@ -83,6 +85,8 @@ class Grid:
 
     @staticmethod
     def create_grid(n):
+        if not n:
+            return None
         grid = np.zeros((n, n), dtype=np.int8)
         for r in range(grid.shape[0] - 1, -1, -1):
             for c in range(grid.shape[1]):
@@ -202,7 +206,8 @@ class Grid:
         group.add(coord)
         for dr, dc in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
             new_coord = r + dr, c + dc
-            if self.within_bounds(new_coord) and new_coord not in group and self.grid[r + dr][c + dc] == self.grid[r][c]:
+            if self.within_bounds(new_coord) and new_coord not in group and self.grid[r + dr][c + dc] == self.grid[r][
+                c]:
                 self.get_connected(new_coord, group)
         return group
 
@@ -270,25 +275,24 @@ class Grid:
             self.grid[r][c] = 0
         return best_coord, best_score
 
-    def retrieve_best_choice(self, coord=None, func=max):
+    def retrieve_best_choice(self, coord=None, func=max, depth_limit=math.inf):
         assert func == min or func == max
         moves = self.viable_moves()
-        if not moves:
+        if not moves or self.depth >= depth_limit:
             return coord, self.static_evaluation()
 
         choices = []
-        for r,c in moves:
+        for r, c in moves:
             grid = self.clone()
             if func == max:
                 grid.grid[r][c] = 1
-                coord, score = grid.retrieve_best_choice((r,c),min)
+                coord, score = grid.retrieve_best_choice((r, c), min, depth_limit)
                 choices.append(score)
             else:
                 grid.grid[r][c] = 2
-                coord, score = grid.retrieve_best_choice((r,c),max)
+                coord, score = grid.retrieve_best_choice((r, c), max, depth_limit)
                 choices.append(score)
         return coord, func(choices)
-
 
 
 if __name__ == '__main__':
