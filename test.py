@@ -61,11 +61,6 @@ def state_3(simulated_turns=0, n=5):
         else:
             state.grid[r][c] = 2
             is_players_turn = True
-
-
-
-
-
     return state
 
 
@@ -109,7 +104,7 @@ def test_0_column():
     print(state)
     # checks the 0 column for candidates
     candidate_coords = get_0_column(state.grid)
-    assert candidate_coords == [(1, 0), (2, 0), (3, 0)]
+    assert candidate_coords == [(1, 0), (2, 0), (3, 0), (5, 0), (7, 0), (9, 0)]
 
     # for each candidate, checks connected nodes
     assert get_neighbors(state.grid, (3, 0), 1) is True
@@ -136,15 +131,6 @@ def test_in_last_column():
             # print((r,c))
         else:
             assert state.in_last_column((r, c)) is False
-
-
-def test_node_actions():
-    print()
-    state = state_2()
-    dirs = ['left', 'right', 'down', 'up']
-    for i, string in enumerate(dirs):
-        node = Node(state, (5, 6), i)
-        print(f"{string}: {[dirs[a] for a in node.actions()]}")
 
 
 def test_initial_state():
@@ -188,23 +174,16 @@ def test_static_eval():
     print()
     state = Grid(10)
     print(state)
-    print(state.static_evaluation(1))
-    print(state.static_evaluation(2))
+    print(state.static_evaluation())
+    print(state.static_evaluation())
 
     for _ in range(20):
         r, c = choice(state.viable_moves())
         state.grid[r][c] = randint(1, 2)
 
     print(state)
-    print(state.static_evaluation(1))
-    print(state.static_evaluation(2))
-
-
-def test_pick_best():
-    print()
-    state = state_2()
-    print(state)
-    print(state.pick_best_next_choice(2))
+    print(state.static_evaluation())
+    print(state.static_evaluation())
 
 
 def test_clone():
@@ -235,32 +214,32 @@ def test_clone():
 
 def test_minmax():
     print()
-    state = state_3(6)
-    coord, score = state.retrieve_best_choice()
+    state = state_3(5)
+    coord, score = state.minmax()
     print(state)
-    print(state.static_evaluation())
     print(coord, score)
 
 
-def test_depth_limit(n):
+def depth_limit_example(n):
     print()
     state = state_3(5)
     state.depth = 0
-    coord, score = state.retrieve_best_choice(depth_limit=n)
+    coord, score = state.minmax(depth_limit=n)
     print(state)
     print(coord, score)
 
+
 def time_depth_limit_difference():
     c_5 = time.perf_counter()
-    test_depth_limit(math.inf)
+    depth_limit_example(math.inf)
     c_4 = time.perf_counter()
-    test_depth_limit(4)
+    depth_limit_example(4)
     c_3 = time.perf_counter()
-    test_depth_limit(3)
+    depth_limit_example(3)
     c_2 = time.perf_counter()
-    test_depth_limit(2)
+    depth_limit_example(2)
     c_1 = time.perf_counter()
-    test_depth_limit(1)
+    depth_limit_example(1)
     c_0 = time.perf_counter()
 
     print(f"inf depth: {c_4-c_5}")
@@ -270,6 +249,21 @@ def time_depth_limit_difference():
     print(f"depth 1: {c_0 - c_1}")
 
 
+def test_alpha_beta():
+    print()
+    state = state_3(5)
+    coord, score = state.alpha_beta()
+    print(state)
+    print(coord, score)
+
+
 if __name__ == '__main__':
-    time_depth_limit_difference()
+    t1 = time.perf_counter()
+    test_minmax()
+    t2 = time.perf_counter()
+    test_alpha_beta()
+    t3 = time.perf_counter()
+
+    print(t2-t1)
+    print(t3-t2)
 

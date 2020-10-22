@@ -10,7 +10,7 @@ class Direction:
     UP = 3
 
 
-def play_game(n=3):
+def play_game(n=4):
     grid = Grid(n)
     is_players_turn = grid.get_who_moves_first()
     game_over = False
@@ -19,7 +19,7 @@ def play_game(n=3):
             grid.get_human_player_move()
             is_players_turn = False
         else:
-            grid.get_computer_player_move()
+            grid.generate_computer_player_move()
             is_players_turn = True
         game_over = grid.check_for_a_win()
 
@@ -170,7 +170,7 @@ class Grid:
         moves = self.viable_moves()
         print(self)
         print(f"Options: " + str(moves))
-        print(f"Best Option: " + str(self.retrieve_best_choice(func=max)))
+        print(f"Best Option: " + str(self.alpha_beta(func=max)))
 
         r, c = None, None
         is_valid_move = False
@@ -186,8 +186,8 @@ class Grid:
         self.grid[r][c] = 1
         print()
 
-    def get_computer_player_move(self):
-        coord, score = self.retrieve_best_choice(func=min)
+    def generate_computer_player_move(self):
+        coord, score = self.alpha_beta(func=min)
         r, c = coord
         self.grid[r][c] = 2
         print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
@@ -275,7 +275,7 @@ class Grid:
             self.grid[r][c] = 0
         return best_coord, best_score
 
-    def retrieve_best_choice(self, coord=None, func=max, depth_limit=math.inf):
+    def minmax(self, coord=None, func=max, depth_limit=math.inf):
         assert func == min or func == max
         moves = self.viable_moves()
         if not moves or self.depth >= depth_limit:
@@ -286,12 +286,35 @@ class Grid:
             grid = self.clone()
             if func == max:
                 grid.grid[r][c] = 1
-                coord, score = grid.retrieve_best_choice((r, c), min, depth_limit)
+                coord, score = grid.minmax((r, c), min, depth_limit)
                 choices.append(score)
             else:
                 grid.grid[r][c] = 2
-                coord, score = grid.retrieve_best_choice((r, c), max, depth_limit)
+                coord, score = grid.minmax((r, c), max, depth_limit)
                 choices.append(score)
+        return coord, func(choices)
+
+    def alpha_beta(self, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth_limit=math.inf):
+        assert func == min or func == max
+        moves = self.viable_moves()
+        if not moves or self.depth >= depth_limit:
+            return coord, self.static_evaluation()
+
+        choices = []
+        for r, c in moves:
+            grid = self.clone()
+            if func == max:
+                grid.grid[r][c] = 1
+                coord, score = grid.alpha_beta((r, c), min, alpha, beta, depth_limit)
+                alpha = max(score, alpha)
+                choices.append(score)
+            else:
+                grid.grid[r][c] = 2
+                coord, score = grid.alpha_beta((r, c), max, alpha, beta, depth_limit)
+                beta = min(score, beta)
+                choices.append(score)
+            if beta <= alpha:
+                break
         return coord, func(choices)
 
 
