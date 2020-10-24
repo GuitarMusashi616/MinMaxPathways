@@ -258,10 +258,11 @@ def test_alpha_beta():
 
 
 if __name__ == '__main__':
+    state = state_3(0, 4)
     t1 = time.perf_counter()
-    test_minmax()
+    coord, score = state.alpha_beta()
     t2 = time.perf_counter()
-    test_alpha_beta()
+    coord, score = state.minmax()
     t3 = time.perf_counter()
 
     print(t2-t1)
