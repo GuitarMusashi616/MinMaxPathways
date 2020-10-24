@@ -5,9 +5,9 @@ from node import *
 def minmax(grid, func=max, depth_limit=math.inf):
     root_node = Node(func=func, depth_limit=depth_limit)
     root_node.minmax(grid)
-    for k in root_node.choices.keys():
-        if root_node.choices[k] == root_node.pick:
-            return k, root_node.pick[0], root_node.pick[1]
+    index = root_node.scores.index(root_node.pick)
+
+    return root_node.moves[index], root_node.pick[0], root_node.pick[1]
 
 
 def play_game(n=4):

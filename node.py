@@ -11,7 +11,8 @@ class Node:
         self.depth = depth
         self.depth_limit = depth_limit
         self.pick = None
-        self.choices = {}
+        self.moves = []
+        self.scores = []
         self.func = func
 
     def __repr__(self):
@@ -46,20 +47,22 @@ class Node:
             # node.win_loss_draw = 0
             # return coord, 0, node.depth
 
-        moves = viable_moves(grid)
-        for r, c in moves:
+        self.moves = viable_moves(grid)
+        for r, c in self.moves:
             if self.func == max:
                 grid[r][c] = 1
                 child = self.spawn_child(min, self.depth+1, self.depth_limit)
-                self.choices[r, c] = child.minmax(grid)
+                score, depth = child.minmax(grid)
+                self.scores.append((score, depth))
                 grid[r][c] = 0
             else:
                 grid[r][c] = 2
                 child = self.spawn_child(max, self.depth+1, self.depth_limit)
-                self.choices[r, c] = child.minmax(grid)
+                score, depth = child.minmax(grid)
+                self.scores.append((score, depth))
                 grid[r][c] = 0
 
-        self.pick = self.func(self.choices.values())
+        self.pick = max(self.scores)
         # the coords are the key to the score and depth, only care about score
         if self.depth == 0:
             print()
