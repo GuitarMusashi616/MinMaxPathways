@@ -348,6 +348,7 @@ def minmax_tree(grid, node=None, coord=None, func=max, depth=0, depth_limit=math
             _, score, final_depth = minmax_tree(grid, child, (r, c), max, depth + 1, depth_limit)
             choices.append(((r, c), score, final_depth))
             grid[r][c] = 0
+
     best_score = func([s[1] for s in choices])
     node.pick = [s[1] for s in choices].index(best_score)
     best_depth = choices[node.pick][2]
