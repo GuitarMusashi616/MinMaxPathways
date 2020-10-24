@@ -265,16 +265,17 @@ def minmax(grid, coord=None, func=max, depth=0, depth_limit=math.inf):
         return coord, static_evaluation(grid)
 
     choices = []
-    depth += 1
     for r, c in moves:
         if func == max:
             grid[r][c] = 1
-            coord, score = minmax(grid, (r, c), min, depth, depth_limit)
+            coord, score = minmax(grid, (r, c), min, depth+1, depth_limit)
             choices.append(score)
+            grid[r][c] = 0
         else:
             grid[r][c] = 2
-            coord, score = minmax(grid, (r, c), max, depth, depth_limit)
+            coord, score = minmax(grid, (r, c), max, depth+1, depth_limit)
             choices.append(score)
+            grid[r][c] = 0
     return coord, func(choices)
 
 
@@ -285,18 +286,19 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
         return coord, static_evaluation(grid)
 
     choices = []
-    depth += 1
     for r, c in moves:
         if func == max:
-            grid.grid[r][c] = 1
-            coord, score = grid.alpha_beta((r, c), min, alpha, beta, depth_limit)
+            grid[r][c] = 1
+            coord, score = alpha_beta(grid, (r, c), min, alpha, beta, depth+1, depth_limit)
             alpha = max(score, alpha)
             choices.append(score)
+            grid[r][c] = 0
         else:
-            grid.grid[r][c] = 2
-            coord, score = grid.alpha_beta((r, c), max, alpha, beta, depth_limit)
+            grid[r][c] = 2
+            coord, score = alpha_beta(grid, (r, c), max, alpha, beta, depth+1, depth_limit)
             beta = min(score, beta)
             choices.append(score)
+            grid[r][c] = 0
         if beta <= alpha:
             break
     return coord, func(choices)
