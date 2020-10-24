@@ -275,20 +275,28 @@ def win_loss_eval(grid) -> int or None:
 
 def minmax(grid, coord=None, func=max, depth=0, depth_limit=math.inf):
     assert func == min or func == max
+    score = win_loss_eval(grid)
+    if isinstance(score, int):
+        # returns if win, loss, or draw (no moves)
+        return coord, score
+
+    if depth >= depth_limit:
+        return coord, 0
+
     moves = viable_moves(grid)
-    if not moves or depth >= depth_limit:
-        return coord, win_loss_eval(grid)
+    if not moves:
+        return coord, 0
 
     choices = []
     for r, c in moves:
         if func == max:
             grid[r][c] = 1
-            coord, score = minmax(grid, (r, c), min, depth+1, depth_limit)
+            coord, score = minmax(grid, (r, c), min, depth + 1, depth_limit)
             choices.append(score)
             grid[r][c] = 0
         else:
             grid[r][c] = 2
-            coord, score = minmax(grid, (r, c), max, depth+1, depth_limit)
+            coord, score = minmax(grid, (r, c), max, depth + 1, depth_limit)
             choices.append(score)
             grid[r][c] = 0
     return coord, func(choices)
@@ -304,13 +312,13 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
     for r, c in moves:
         if func == max:
             grid[r][c] = 1
-            coord, score = alpha_beta(grid, (r, c), min, alpha, beta, depth+1, depth_limit)
+            coord, score = alpha_beta(grid, (r, c), min, alpha, beta, depth + 1, depth_limit)
             alpha = max(score, alpha)
             choices.append(score)
             grid[r][c] = 0
         else:
             grid[r][c] = 2
-            coord, score = alpha_beta(grid, (r, c), max, alpha, beta, depth+1, depth_limit)
+            coord, score = alpha_beta(grid, (r, c), max, alpha, beta, depth + 1, depth_limit)
             beta = min(score, beta)
             choices.append(score)
             grid[r][c] = 0
