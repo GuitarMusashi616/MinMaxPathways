@@ -243,38 +243,6 @@ class Grid:
         path_groups_computer = self.get_path_groups(2)
         return self.count_unique_columns(path_groups_human) - self.count_unique_columns(path_groups_computer)
 
-    def player_best_next_choice(self):
-        # higher score better for player
-        moves = self.viable_moves()
-        assert moves, "no viable moves left"
-        # do move, analyze, undo move
-        best_score = -math.inf
-        best_coord = None
-        for r, c in moves:
-            self.grid[r][c] = 1
-            score = self.static_evaluation()
-            if score > best_score:
-                best_score = score
-                best_coord = (r, c)
-            self.grid[r][c] = 0
-        return best_coord, best_score
-
-    def computer_best_next_choice(self):
-        # lower score better for computer
-        moves = self.viable_moves()
-        assert moves, "no viable moves left"
-        # do move, analyze, undo move
-        best_score = math.inf
-        best_coord = None
-        for r, c in moves:
-            self.grid[r][c] = 2
-            score = self.static_evaluation()
-            if score < best_score:
-                best_score = score
-                best_coord = (r, c)
-            self.grid[r][c] = 0
-        return best_coord, best_score
-
     def minmax(self, coord=None, func=max, depth_limit=math.inf):
         assert func == min or func == max
         moves = self.viable_moves()
