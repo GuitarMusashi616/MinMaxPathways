@@ -1,11 +1,11 @@
 class Node:
-    def __init__(self, parent, depth):
+    def __init__(self, parent):
         self.parent = parent
         self.children = []
         self.coord = None
         self.win_loss_draw = None
         self.grid = None
-        self.depth = depth
+        self.depth = None
         self.pick = None
         self.choices = None
         self.func = None
