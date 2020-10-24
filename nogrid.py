@@ -16,10 +16,10 @@ def play_game(n=4):
     game_over = False
     while not game_over:
         if is_players_turn:
-            get_human_player_move(grid)
+            get_human_player_move(grid, minmax)
             is_players_turn = False
         else:
-            generate_computer_player_move(grid)
+            generate_computer_player_move(grid, minmax)
             is_players_turn = True
         game_over = check_for_a_win(grid)
 
@@ -81,7 +81,7 @@ def print_grid(grid):
             else:
                 string += '-'
         string += '\n'
-    return string
+    print(string)
 
 
 def get_who_moves_first():
@@ -123,7 +123,7 @@ def is_winner_breadth_first(grid):
             return r, c
         for dr, dc in [(0, -1), (0, 1), (-1, 0), (1, 0)]:  # left, right, down, up
             new_coord = r + dr, c + dc
-            if within_bounds(new_coord) and new_coord not in exclude:
+            if within_bounds(grid, new_coord) and new_coord not in exclude:
                 # check number
                 if grid[r + dr][c + dc] == grid[r][c]:  # both a 1 or both a 2
                     queue.append(new_coord)
@@ -154,14 +154,14 @@ def check_for_a_win(grid):
     # Every cell full and there is no winner - Draw
     coord = is_winner_breadth_first(grid)
     if coord:
-        print(grid)
+        print_grid(grid)
         if grid[coord[0]][coord[1]] == 1:
             print("You Win!")
         elif grid[coord[0]][coord[1]] == 2:
             print("You Lose!")
         return True
     elif is_full(grid):
-        print(grid)
+        print_grid(grid)
         print("Draw!")
         return True
     return False
@@ -176,11 +176,11 @@ def viable_moves(grid):
     return moves
 
 
-def get_human_player_move(grid):
-    moves = viable_moves()
-    print(grid)
+def get_human_player_move(grid, strategy):
+    moves = viable_moves(grid)
+    print_grid(grid)
     print(f"Options: " + str(moves))
-    print(f"Best Option: " + str(alpha_beta(func=max)))
+    print(f"Best Option: " + str(strategy(grid, func=max)))
 
     r, c = None, None
     is_valid_move = False
@@ -197,8 +197,8 @@ def get_human_player_move(grid):
     print()
 
 
-def generate_computer_player_move(grid):
-    coord, score = alpha_beta(func=min)
+def generate_computer_player_move(grid, strategy):
+    coord, score = strategy(grid, func=min)
     r, c = coord
     grid[r][c] = 2
     print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
@@ -258,11 +258,26 @@ def static_evaluation(grid):
     return count_unique_columns(path_groups_human) - count_unique_columns(path_groups_computer)
 
 
+def win_loss_eval(grid) -> int or None:
+    """returns +1 if human win, -1 if loss, and 0 if draw"""
+    coord = is_winner_breadth_first(grid)
+    if coord:
+        if grid[coord[0]][coord[1]] == 1:
+            # human win
+            return 1
+        elif grid[coord[0]][coord[1]] == 2:
+            # computer win
+            return -1
+    elif is_full(grid):
+        # draw
+        return 0
+
+
 def minmax(grid, coord=None, func=max, depth=0, depth_limit=math.inf):
     assert func == min or func == max
     moves = viable_moves(grid)
     if not moves or depth >= depth_limit:
-        return coord, static_evaluation(grid)
+        return coord, win_loss_eval(grid)
 
     choices = []
     for r, c in moves:
@@ -283,7 +298,7 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
     assert func == min or func == max
     moves = viable_moves(grid)
     if not moves or depth >= depth_limit:
-        return coord, static_evaluation(grid)
+        return coord, win_loss_eval(grid)
 
     choices = []
     for r, c in moves:
