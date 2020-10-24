@@ -11,11 +11,11 @@ class Node:
         self.func = None
 
     def __repr__(self):
-        if self.win_loss_draw == 1:
+        if self.win_loss_draw is None:
+            return f"NODE @ depth: {self.depth}"
+        elif self.win_loss_draw >= 1:
             return f"WIN @ depth: {self.depth}"
-        elif self.win_loss_draw == -1:
+        elif self.win_loss_draw <= -1:
             return f"LOSS @ depth: {self.depth}"
         elif self.win_loss_draw == 0:
             return f"DRAW @ depth: {self.depth}"
-        else:
-            return f"NODE @ depth: {self.depth}"
