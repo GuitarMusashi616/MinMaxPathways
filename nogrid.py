@@ -360,7 +360,7 @@ def minmax_tree(grid, node=None, coord=None, func=max, depth=0, depth_limit=math
     return best_coord, best_score, best_depth
 
 
-def alpha_beta_tree(grid, node=None, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=5):
+def alpha_beta_tree(grid, node=None, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=math.inf):
     assert func == min or func == max
     if not node:
         node = Node(None)
@@ -447,4 +447,4 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
 
 
 if __name__ == '__main__':
-    play_game(6)
+    play_game(5)
