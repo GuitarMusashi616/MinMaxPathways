@@ -454,20 +454,28 @@ def get_time_constant(n, is_alpha_beta=False):
     t1 = time.perf_counter()
     alpha_beta(grid, func=min, alpha=alpha, beta=beta)
     t2 = time.perf_counter()
-    return time_constant(move_count, t2-t1, is_alpha_beta)
+    return time_constant(move_count, t2-t1)
 
 
-def time_constant(move_count, secs, is_alpha_beta=False):
-    return secs/math.factorial(move_count) if not is_alpha_beta else secs/math.factorial(math.ceil(move_count/2))
+def time_constant(move_count, secs):
+    return secs/math.factorial(move_count)
 
 
-def time_prediction(constant, move_count, d=None, is_alpha_beta=False):
+def time_prediction(constant, move_count, d=math.inf):
     operations = math.factorial(move_count)
-    if not d:
-        return operations * constant if not is_alpha_beta else (operations/math.factorial(move_count/2)) * constant
+    if d >= move_count:
+        return operations * constant
     else:
-        d = d if not is_alpha_beta else d/2
         return (operations/math.factorial(move_count-d))*constant
+
+
+def get_depth_limit(target_secs, constant, move_count):
+    if time_prediction(constant, move_count) < target_secs:
+        return math.inf
+
+    for d in range(20, 0, -1):
+        if time_prediction(constant, move_count, d) <= target_secs:
+            return d
 
 
 def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=math.inf):
@@ -475,6 +483,7 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
 
     score = win_loss_eval(grid)
     if isinstance(score, int):
+        depth = depth if depth != 0 else 1
         return coord, score*(1/depth), depth
 
     if depth >= depth_limit:

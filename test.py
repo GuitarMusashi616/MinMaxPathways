@@ -129,10 +129,10 @@ def check_constants():
     print(get_time_constant(4, True))
 
 
-if __name__ == "__main__":
+def prediction_vs_actual():
     tM = get_time_constant(3)
-    tA = get_time_constant(3, True)
-    for i in range(9,3,-1):
+    tA = get_time_constant(4, True)
+    for i in range(9,4,-1):
         grid = create_grid(5)
         generate_random_turns(grid, 1, i)
         move_count = len(viable_moves(grid))
@@ -142,11 +142,64 @@ if __name__ == "__main__":
         t2 = time.perf_counter()
         print(f'Actual: {t2-t1}')
 
-        print(f'Alpha_Beta Prediction: {time_prediction(tA, move_count, True)}')
+        print(f'Alpha_Beta Prediction: {time_prediction(tA, move_count)}')
         t1 = time.perf_counter()
         alpha_beta(grid, func=min)
         t2 = time.perf_counter()
         print(f'Actual: {t2-t1}')
+
+
+def prediction_vs_actual_depth():
+    tM = get_time_constant(3)
+    tA = get_time_constant(4, True)
+    grid = create_grid(6)
+    for d in range(1, 10):
+        move_count = len(viable_moves(grid))
+        print(f'Minmax Prediction: {time_prediction(tM, move_count, d)}')
+        t1 = time.perf_counter()
+        alpha_beta(grid, func=min, alpha=None, beta=None, depth_limit=d)
+        t2 = time.perf_counter()
+        print(f'Actual: {t2-t1}')
+
+        print(f'Alpha_Beta Prediction: {time_prediction(tA, move_count, d)}')
+        t3 = time.perf_counter()
+        alpha_beta(grid, func=min, depth_limit=d)
+        t4 = time.perf_counter()
+        print(f'Actual: {t4-t3}')
+
+
+def grid_depth_limit_prediction(n, tM, tA):
+    grid = create_grid(n)
+    move_count = len(viable_moves(grid))
+    print(f"Grid Size: {grid.shape[0]}x{grid.shape[1]}")
+
+    d = get_depth_limit(10, tM, move_count)
+    print(f"MinMax Suggested Depth: {d}")
+    print(f"Estimated Time: {time_prediction(tM, move_count, d)}")
+    t1 = time.perf_counter()
+    alpha_beta(grid, func=min, alpha=None, beta=None, depth_limit=d)
+    t2 = time.perf_counter()
+    print(f"Actual Time: {t2-t1}")
+
+    d = get_depth_limit(10, tA, move_count)
+    print(f"AlphaBeta Suggested Depth: {d}")
+    print(f"Estimated Time: {time_prediction(tA, move_count, d)}")
+    t3 = time.perf_counter()
+    alpha_beta(grid, func=min, depth_limit=d)
+    t4 = time.perf_counter()
+    print(f"Actual Time: {t4-t3}")
+
+
+def test_get_depth_limit():
+    tM = get_time_constant(3)
+    tA = get_time_constant(4, True)
+    for i in range(3, 10):
+        grid_depth_limit_prediction(i,tM,tA)
+        print()
+
+
+if __name__ == "__main__":
+    test_get_depth_limit()
 
 
 
