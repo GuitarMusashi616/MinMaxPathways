@@ -1,8 +1,8 @@
 import numpy as np
 from random import choice
 import math
-from node import Node
 import time
+
 
 class Direction:
     LEFT = 0
@@ -15,12 +15,13 @@ def play_game(n=4, suggestion=False):
     grid = create_grid(n)
     is_players_turn = get_who_moves_first()
     game_over = False
+    constant = get_time_constant(4, True)
     while not game_over:
         if is_players_turn:
             get_human_player_move(grid, alpha_beta, suggestion)
             is_players_turn = False
         else:
-            generate_computer_player_move(grid, alpha_beta)
+            generate_computer_player_move(grid, alpha_beta, constant, 10)
             is_players_turn = True
         game_over = check_for_a_win(grid)
 
@@ -199,9 +200,10 @@ def get_human_player_move(grid, strategy, suggestion=False):
     print()
 
 
-def generate_computer_player_move(grid, strategy):
+def generate_computer_player_move(grid, strategy, constant, target_secs):
     print_grid(grid)
-    coord, score, final_depth = strategy(grid, func=min)
+    d = get_depth_limit(target_secs, constant, len(viable_moves(grid)))
+    coord, score, final_depth = strategy(grid, func=min, depth_limit=d)
     r, c = coord
     grid[r][c] = 2
     print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
@@ -297,152 +299,6 @@ def win_loss_eval(grid) -> int or None:
         return 0
 
 
-def minmax_tree(grid, node=None, coord=None, func=max, depth=0, depth_limit=math.inf):
-    assert func == min or func == max
-    if not node:
-        node = Node(None)
-
-    node.grid = grid.copy()
-    node.coord = coord
-    node.depth = depth
-    if func == max:
-        node.func = "MAX"
-    else:
-        node.func = "MIN"
-
-    score = win_loss_eval(grid)
-    if isinstance(score, int):
-        # returns if win, loss, or draw (no moves)
-        node.win_loss_draw = score
-        return coord, score*(1/depth), depth
-
-    if depth >= depth_limit:
-        raise ValueError("depth limit needs to be set higher than " + str(depth_limit))
-        # node.win_loss_draw = 0
-        # return coord, 0, node.depth
-
-    moves = viable_moves(grid)
-
-    choices = []
-    for r, c in moves:
-        child = Node(node)
-        node.children.append(child)
-        if func == max:
-            grid[r][c] = 1
-            _, score, final_depth = minmax_tree(grid, child, (r, c), min, depth + 1, depth_limit)
-            choices.append(((r, c), score, final_depth))
-            grid[r][c] = 0
-        else:
-            grid[r][c] = 2
-            _, score, final_depth = minmax_tree(grid, child, (r, c), max, depth + 1, depth_limit)
-            choices.append(((r, c), score, final_depth))
-            grid[r][c] = 0
-
-    best_score = func([s[1] for s in choices])
-    node.pick = [s[1] for s in choices].index(best_score)
-    best_depth = choices[node.pick][2]
-    best_coord = choices[node.pick][0]
-    node.choices = choices
-    if depth == 0:
-        print('tree complete')
-    return best_coord, best_score, best_depth
-
-
-# def alpha_beta_tree(grid, node=None, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=math.inf):
-#     assert func == min or func == max
-#     if not node:
-#         node = Node(None)
-#
-#     # node.grid = grid.copy()
-#     node.coord = coord
-#     node.depth = depth
-#     node.alpha = alpha
-#     node.beta = beta
-#     if func == max:
-#         node.func = "MAX"
-#     else:
-#         node.func = "MIN"
-#
-#     score = win_loss_eval(grid)
-#     if isinstance(score, int):
-#         # returns if win, loss, or draw (no moves)
-#         node.win_loss_draw = score
-#         return coord, score*(1/depth), depth
-#
-#     if depth >= depth_limit:
-#         # raise ValueError("depth limit needs to be set higher than " + str(depth_limit))
-#         node.win_loss_draw = 0
-#         return coord, 0, node.depth
-#
-#     moves = viable_moves(grid)
-#
-#     choices = []
-#     for r, c in moves:
-#         child = Node(node)
-#         node.children.append(child)
-#         if func == max:
-#             grid[r][c] = 1
-#             _, score, final_depth = alpha_beta_tree(grid, child, (r, c), min, alpha, beta, depth + 1, depth_limit)
-#             alpha = max(score, alpha)
-#             choices.append(((r, c), score, final_depth))
-#             grid[r][c] = 0
-#         else:
-#             grid[r][c] = 2
-#             _, score, final_depth = alpha_beta_tree(grid, child, (r, c), max, alpha, beta, depth + 1, depth_limit)
-#             beta = min(score, beta)
-#             choices.append(((r, c), score, final_depth))
-#             grid[r][c] = 0
-#         if beta <= alpha:
-#             break
-#
-#     best_score = func([s[1] for s in choices])
-#     node.pick = [s[1] for s in choices].index(best_score)
-#     best_depth = choices[node.pick][2]
-#     best_coord = choices[node.pick][0]
-#     node.choices = choices
-#     if depth == 0:
-#         print('tree complete')
-#     return best_coord, best_score, best_depth
-
-# def minmax_tree(grid, node=None, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=math.inf):
-#     assert func == min or func == max
-#     if not node:
-#         node = Node(None, grid.copy(), coord, func, alpha, beta, depth, depth_limit)
-#
-#     score = win_loss_eval(grid)
-#     if isinstance(score, int):
-#         return coord, score*(1/depth), depth
-#
-#     if depth >= depth_limit:
-#         return coord, 0, depth
-#
-#     moves = viable_moves(grid)
-#
-#     choices = []
-#     for r, c in moves:
-#         child = Node(node)
-#         node.children.append(child)
-#         if func == max:
-#             grid[r][c] = 1
-#             _, score, final_depth = minmax_tree(grid, (r, c), min, alpha, beta, depth + 1, depth_limit)
-#             alpha = max(score, alpha) if alpha is not None else None
-#             choices.append(((r, c), score, final_depth))
-#             grid[r][c] = 0
-#         else:
-#             grid[r][c] = 2
-#             _, score, final_depth = minmax_tree(grid, (r, c), max, alpha, beta, depth + 1, depth_limit)
-#             beta = min(score, beta) if beta is not None else None
-#             choices.append(((r, c), score, final_depth))
-#             grid[r][c] = 0
-#         if alpha is not None and beta is not None and beta <= alpha:
-#             break
-#
-#     best_score = func([s[1] for s in choices])
-#     best_pick = [s[1] for s in choices].index(best_score)
-#     best_depth = choices[best_pick][2]
-#     best_coord = choices[best_pick][0]
-#     return best_coord, best_score, best_depth
-
 def get_time_constant(n, is_alpha_beta=False):
     alpha = None
     beta = None
@@ -479,6 +335,7 @@ def get_depth_limit(target_secs, constant, move_count):
 
 
 def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=math.inf):
+    # Use alpha=None and beta=None to use regular minmax
     assert func == min or func == max
 
     score = win_loss_eval(grid)
@@ -516,4 +373,4 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
 
 
 if __name__ == '__main__':
-    play_game(4)
+    play_game(8)
