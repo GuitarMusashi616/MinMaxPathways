@@ -9,6 +9,8 @@ class Node:
         self.pick = None
         self.choices = None
         self.func = None
+        self.alpha = None
+        self.beta = None
 
     def __repr__(self):
         if self.win_loss_draw is None:
