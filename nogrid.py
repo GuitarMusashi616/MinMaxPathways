@@ -2,7 +2,7 @@ import numpy as np
 from random import choice
 import math
 from node import Node
-
+import time
 
 class Direction:
     LEFT = 0
@@ -205,6 +205,27 @@ def generate_computer_player_move(grid, strategy):
     r, c = coord
     grid[r][c] = 2
     print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
+
+
+def generate_random_move(grid: np.array, player: int):
+    assert player == 1 or player == 2
+    moves = viable_moves(grid)
+    r, c = choice(moves)
+    grid[r][c] = player
+
+
+def generate_random_turns(grid: np.array, starting_player: int, turns: int):
+    assert starting_player == 1 or starting_player == 2
+    player = 2
+    if starting_player == 1:
+        player = 1
+
+    for _ in range(turns):
+        generate_random_move(grid, player)
+        if player == 1:
+            player = 2
+        else:
+            player = 1
 
 
 def get_path_coords(grid, num=2):
@@ -421,6 +442,32 @@ def minmax_tree(grid, node=None, coord=None, func=max, depth=0, depth_limit=math
 #     best_depth = choices[best_pick][2]
 #     best_coord = choices[best_pick][0]
 #     return best_coord, best_score, best_depth
+
+def get_time_constant(n, is_alpha_beta=False):
+    alpha = None
+    beta = None
+    if is_alpha_beta:
+        alpha = -math.inf
+        beta = math.inf
+    grid = create_grid(n)
+    move_count = len(viable_moves(grid))
+    t1 = time.perf_counter()
+    alpha_beta(grid, func=min, alpha=alpha, beta=beta)
+    t2 = time.perf_counter()
+    return time_constant(move_count, t2-t1, is_alpha_beta)
+
+
+def time_constant(move_count, secs, is_alpha_beta=False):
+    return secs/math.factorial(move_count) if not is_alpha_beta else secs/math.factorial(math.ceil(move_count/2))
+
+
+def time_prediction(constant, move_count, d=None, is_alpha_beta=False):
+    operations = math.factorial(move_count)
+    if not d:
+        return operations * constant if not is_alpha_beta else (operations/math.factorial(move_count/2)) * constant
+    else:
+        d = d if not is_alpha_beta else d/2
+        return (operations/math.factorial(move_count-d))*constant
 
 
 def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth=0, depth_limit=math.inf):
