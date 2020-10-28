@@ -204,6 +204,8 @@ def generate_computer_player_move(grid, strategy, constant, target_secs):
     print_grid(grid)
     d = get_depth_limit(target_secs, constant, len(viable_moves(grid)))
     coord, score, final_depth = strategy(grid, func=min, depth_limit=d)
+    if not coord:
+        return
     r, c = coord
     grid[r][c] = 2
     print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
@@ -373,4 +375,4 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
 
 
 if __name__ == '__main__':
-    play_game(8)
+    play_game(6)
