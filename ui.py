@@ -4,6 +4,7 @@ from nogrid import *
 from random import randint
 from time import sleep
 
+
 class Config:
     S_WIDTH = 1920
     S_HEIGHT = 1080
@@ -43,13 +44,14 @@ def try_stuff_multiplayer(n):
     constant = get_time_constant(3, True)
     play_ui_multiplayer(grid, True, constant)
 
+
 def try_stuff_ais(n):
     grid = create_grid(n)
     constant = get_time_constant(3, True)
     play_ais(grid, True, constant)
 
 
-def play_ui(grid, is_players_turn, constant, depth=0, target_time=1):
+def play_ui(grid, is_players_turn, constant, depth=0, target_time=12):
     pygame.init()
     pygame.mixer.music.load('Pathways.mp3')
     pygame.mixer.music.play(-1)
@@ -136,6 +138,7 @@ def play_ais(grid, is_players_turn, constant, depth=0, target_time=1):
         display_title(screen, title)
         display_grid(grid, screen)
         pygame.display.flip()
+
 
 def display_grid(grid, screen):
     block_width = Config.PLAY_WIDTH // grid.shape[0]

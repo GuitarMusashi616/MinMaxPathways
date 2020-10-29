@@ -18,7 +18,7 @@ def play_game(grid, is_players_turn, constant, forced_depth=0, suggestion=False)
             get_human_player_move(grid, alpha_beta, suggestion)
             is_players_turn = False
         else:
-            generate_computer_player_move(grid, alpha_beta, constant, 10, forced_depth)
+            generate_computer_player_move(grid, alpha_beta, constant, 12, forced_depth)
             is_players_turn = True
         game_over = check_for_a_win(grid)
 
