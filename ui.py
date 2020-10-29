@@ -19,9 +19,9 @@ def init_title():
     return font.render('PATHWAYS', 1, (255, 255, 255))
 
 
-def init_end():
+def init_end(string='GAME OVER', color=(255,0,0)):
     font = pygame.font.SysFont('comicsans', 60)
-    return font.render('GAME OVER', 1, (255, 0, 0))
+    return font.render(string, 1, color)
 
 
 def display_title(screen, label):
@@ -33,15 +33,17 @@ def display_game_over(screen, label):
 
 
 def try_stuff(n):
+    grid = create_grid(n)
+    constant = get_time_constant(3, True)
+    play_ui(grid, True, constant)
+
+
+def play_ui(grid, is_players_turn, constant, depth=0):
     pygame.init()
     pygame.display.set_caption('Pathways')
     screen = pygame.display.set_mode((Config.S_WIDTH, Config.S_HEIGHT))
-    grid = create_grid(n)
-    constant = get_time_constant(4, True)
     title = init_title()
-    end = init_end()
 
-    is_players_turn = True
     game_over = False
     while True:
         for event in pygame.event.get():
@@ -53,18 +55,27 @@ def try_stuff(n):
                 except TypeError:
                     pass
                 else:
-                    if grid[r][c] == 1 or grid[r][c] == 2:
+                    if grid[r][c] == 1 or grid[r][c] == 2 or game_over:
                         break
                     grid[r][c] = 1
                     game_over = check_for_a_win(grid)
                     is_players_turn = False
             if event.type == pygame.MOUSEBUTTONUP and not is_players_turn:
-                generate_computer_player_move(grid, alpha_beta, constant, 1)
+                generate_computer_player_move(grid, alpha_beta, constant, 1, depth)
                 game_over = check_for_a_win(grid)
                 is_players_turn = True
 
             if event.type == pygame.MOUSEBUTTONUP and game_over:
-                display_game_over(screen, end)
+                score = win_loss_eval(grid)
+                if score > 0:
+                    end = init_end('YOU WIN', color=(0,255,0))
+                    display_game_over(screen, end)
+                elif score == 0:
+                    end = init_end('DRAW', color=(0,0,255))
+                    display_game_over(screen, end)
+                else:
+                    end = init_end()
+                    display_game_over(screen, end)
 
         display_title(screen, title)
         display_grid(grid, screen)
@@ -98,4 +109,4 @@ def get_rect_clicked(grid):
 
 
 if __name__ == '__main__':
-    try_stuff(5)
+    try_stuff(6)

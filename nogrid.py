@@ -10,37 +10,9 @@ class Direction:
     DOWN = 2
     UP = 3
 
-def get_size():
-    # prompt user for grid size
-    size = None
-    while not size:
-        try:
-            size = int(input("What grid size (N) shall we use?\n"))
-            assert size > 2 and size < 15, "grid must be between 3 and 14 spaces long"
-        except AssertionError as e:
-            size = None
-            print(e)
-    return size
 
-
-def get_depth():
-    # prompt user for max depth
-    depth = None
-    while depth == None:
-        try:
-            depth = int(input("What depth limit shall we use? (0 for default)\n"))
-            assert depth >= 0 and depth < 100, 'invalid depth limit (must be between 0 and 100)'
-        except AssertionError as e:
-            print(e)
-            depth = None
-    return depth
-
-
-def play_game(n=4, forced_depth=0, suggestion=False):
-    is_players_turn = get_who_moves_first()
-    grid = create_grid(n, is_players_turn)
+def play_game(grid, is_players_turn, constant, forced_depth=0, suggestion=False):
     game_over = False
-    constant = get_time_constant(4, is_players_turn, True)
     while not game_over:
         if is_players_turn:
             get_human_player_move(grid, alpha_beta, suggestion)
@@ -66,7 +38,7 @@ def get_integer_input(input_str='Type an integer: ', lower_bound=0, upper_bound=
     return x
 
 
-def create_grid(n, player_first):
+def create_grid(n, player_first=True):
     if not n:
         return None
     grid = np.zeros((n, n), dtype=np.int8)
@@ -117,12 +89,12 @@ def print_grid(grid):
     print(string)
 
 
-def get_who_moves_first():
+def get_yes_or_no(input_str):
     # prompt user "want to go first"
     letter = None
     while not letter:
         try:
-            letter = input("Want to go first? (y/n)\n")
+            letter = input(input_str)
             assert type(letter) == str, "input must be a string"
             letter = letter.lower()
             assert letter == 'y' or letter == 'n', "input must be a y or an n"
@@ -231,7 +203,7 @@ def get_human_player_move(grid, strategy, suggestion=False):
     print()
 
 
-def generate_computer_player_move(grid, strategy, constant, target_secs, forced_depth):
+def generate_computer_player_move(grid, strategy, constant, target_secs, forced_depth=0):
     print_grid(grid)
     if forced_depth == 0:
         d = get_depth_limit(target_secs, constant, len(viable_moves(grid)))
@@ -407,9 +379,4 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
     best_coord = choices[best_pick][0]
     return best_coord, best_score, best_depth
 
-
-if __name__ == '__main__':
-    n = get_size()
-    d = get_depth()
-    play_game(n, d)
 
