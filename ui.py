@@ -3,6 +3,7 @@ import sys
 from nogrid import *
 from random import randint
 
+
 class Config:
     S_WIDTH = 1920
     S_HEIGHT = 1080
@@ -52,6 +53,8 @@ def try_stuff(n):
                 except TypeError:
                     pass
                 else:
+                    if grid[r][c] == 1 or grid[r][c] == 2:
+                        break
                     grid[r][c] = 1
                     game_over = check_for_a_win(grid)
                     is_players_turn = False
