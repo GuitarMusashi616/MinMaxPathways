@@ -44,8 +44,10 @@ def try_stuff_multiplayer(n):
     play_ui_multiplayer(grid, True, constant)
 
 
-def play_ui(grid, is_players_turn, constant, depth=0, target_time=5):
+def play_ui(grid, is_players_turn, constant, depth=0, target_time=1):
     pygame.init()
+    pygame.mixer.music.load('Pathways.mp3')
+    pygame.mixer.music.play(-1)
     pygame.display.set_caption('Pathways')
     screen = pygame.display.set_mode((Config.S_WIDTH, Config.S_HEIGHT))
     title = init_title()
@@ -116,6 +118,8 @@ def get_rect_clicked(grid):
 
 def play_ui_multiplayer(grid, first_players_turn, constant, depth=0):
     pygame.init()
+    pygame.mixer.music.load('Pathways.mp3')
+    pygame.mixer.music.play(-1)
     pygame.display.set_caption('Pathways')
     screen = pygame.display.set_mode((Config.S_WIDTH, Config.S_HEIGHT))
     title = init_title()
