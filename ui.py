@@ -144,13 +144,13 @@ def play_ui_multiplayer(grid, first_players_turn, constant, depth=0):
             if event.type == pygame.MOUSEBUTTONUP and game_over:
                 score = win_loss_eval(grid)
                 if score > 0:
-                    end = init_end('1st Player Wins', color=(0,255,0))
+                    end = init_end('1st Player Wins', color=(255,0,0))
                     display_game_over(screen, end)
                 elif score == 0:
-                    end = init_end('DRAW', color=(0,0,255))
+                    end = init_end('DRAW', color=(0,255,0))
                     display_game_over(screen, end)
                 else:
-                    end = init_end('2nd Player Wins')
+                    end = init_end('2nd Player Wins', color=(0,0,255))
                     display_game_over(screen, end)
 
         display_title(screen, title)
@@ -159,4 +159,4 @@ def play_ui_multiplayer(grid, first_players_turn, constant, depth=0):
 
 
 if __name__ == '__main__':
-    try_stuff_multiplayer(6)
+    try_stuff_multiplayer(10)
