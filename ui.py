@@ -2,7 +2,7 @@ import pygame
 import sys
 from nogrid import *
 from random import randint
-
+from time import sleep
 
 class Config:
     S_WIDTH = 1920
@@ -42,6 +42,11 @@ def try_stuff_multiplayer(n):
     grid = create_grid(n)
     constant = get_time_constant(3, True)
     play_ui_multiplayer(grid, True, constant)
+
+def try_stuff_ais(n):
+    grid = create_grid(n)
+    constant = get_time_constant(3, True)
+    play_ais(grid, True, constant)
 
 
 def play_ui(grid, is_players_turn, constant, depth=0, target_time=1):
@@ -89,6 +94,48 @@ def play_ui(grid, is_players_turn, constant, depth=0, target_time=1):
         display_grid(grid, screen)
         pygame.display.flip()
 
+
+def play_ais(grid, is_players_turn, constant, depth=0, target_time=1):
+    pygame.init()
+    last_ticks = pygame.time.get_ticks()
+    pygame.mixer.music.load('Pathways.mp3')
+    pygame.mixer.music.play(-1)
+    pygame.display.set_caption('Pathways')
+    screen = pygame.display.set_mode((Config.S_WIDTH, Config.S_HEIGHT))
+    title = init_title()
+
+    game_over = False
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if is_players_turn and pygame.time.get_ticks()-last_ticks > 100:
+                generate_computer_player_move(grid, alpha_beta, constant, target_time, depth, 1)
+                game_over = check_for_a_win(grid)
+                is_players_turn = False
+                last_ticks = pygame.time.get_ticks()
+
+            if not is_players_turn and pygame.time.get_ticks()-last_ticks > 100:
+                generate_computer_player_move(grid, alpha_beta, constant, target_time, depth)
+                game_over = check_for_a_win(grid)
+                is_players_turn = True
+                last_ticks = pygame.time.get_ticks()
+
+            if game_over:
+                score = win_loss_eval(grid)
+                if score > 0:
+                    end = init_end('YOU WIN', color=(0,255,0))
+                    display_game_over(screen, end)
+                elif score == 0:
+                    end = init_end('DRAW', color=(0,0,255))
+                    display_game_over(screen, end)
+                else:
+                    end = init_end()
+                    display_game_over(screen, end)
+
+        display_title(screen, title)
+        display_grid(grid, screen)
+        pygame.display.flip()
 
 def display_grid(grid, screen):
     block_width = Config.PLAY_WIDTH // grid.shape[0]
@@ -163,4 +210,4 @@ def play_ui_multiplayer(grid, first_players_turn, constant, depth=0):
 
 
 if __name__ == '__main__':
-    try_stuff_multiplayer(10)
+    try_stuff_multiplayer(6)

@@ -203,7 +203,7 @@ def get_human_player_move(grid, strategy, suggestion=False):
     print()
 
 
-def generate_computer_player_move(grid, strategy, constant, target_secs, forced_depth=0):
+def generate_computer_player_move(grid, strategy, constant, target_secs, forced_depth=0, number=2):
     print_grid(grid)
     if forced_depth == 0:
         d = get_depth_limit(target_secs, constant, len(viable_moves(grid)))
@@ -213,7 +213,7 @@ def generate_computer_player_move(grid, strategy, constant, target_secs, forced_
     if not coord:
         return
     r, c = coord
-    grid[r][c] = 2
+    grid[r][c] = number
     print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
 
 
