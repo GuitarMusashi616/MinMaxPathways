@@ -10,18 +10,43 @@ class Direction:
     DOWN = 2
     UP = 3
 
+def get_size():
+    # prompt user for grid size
+    size = None
+    while not size:
+        try:
+            size = int(input("What grid size (N) shall we use?\n"))
+            assert size > 2 and size < 15, "grid must be between 3 and 14 spaces long"
+        except AssertionError as e:
+            size = None
+            print(e)
+    return size
 
-def play_game(n=4, suggestion=False):
-    grid = create_grid(n)
+
+def get_depth():
+    # prompt user for max depth
+    depth = None
+    while depth == None:
+        try:
+            depth = int(input("What depth limit shall we use? (0 for default)\n"))
+            assert depth >= 0 and depth < 100, 'invalid depth limit (must be between 0 and 100)'
+        except AssertionError as e:
+            print(e)
+            depth = None
+    return depth
+
+
+def play_game(n=4, forced_depth=0, suggestion=False):
     is_players_turn = get_who_moves_first()
+    grid = create_grid(n, is_players_turn)
     game_over = False
-    constant = get_time_constant(4, True)
+    constant = get_time_constant(4, is_players_turn, True)
     while not game_over:
         if is_players_turn:
             get_human_player_move(grid, alpha_beta, suggestion)
             is_players_turn = False
         else:
-            generate_computer_player_move(grid, alpha_beta, constant, 10)
+            generate_computer_player_move(grid, alpha_beta, constant, 10, forced_depth)
             is_players_turn = True
         game_over = check_for_a_win(grid)
 
@@ -41,16 +66,22 @@ def get_integer_input(input_str='Type an integer: ', lower_bound=0, upper_bound=
     return x
 
 
-def create_grid(n):
+def create_grid(n, player_first):
     if not n:
         return None
     grid = np.zeros((n, n), dtype=np.int8)
     for r in range(grid.shape[0] - 1, -1, -1):
         for c in range(grid.shape[1]):
             if not r % 2 and c % 2:  # H: even row odd column
-                grid[r][c] = 1
+                if player_first:
+                    grid[r][c] = 1
+                else:
+                    grid[r][c] = 2
             elif r % 2 and not c % 2:  # M: odd row even column
-                grid[r][c] = 2
+                if player_first:
+                    grid[r][c] = 2
+                else:
+                    grid[r][c] = 1
     return grid
 
 
@@ -200,9 +231,12 @@ def get_human_player_move(grid, strategy, suggestion=False):
     print()
 
 
-def generate_computer_player_move(grid, strategy, constant, target_secs):
+def generate_computer_player_move(grid, strategy, constant, target_secs, forced_depth):
     print_grid(grid)
-    d = get_depth_limit(target_secs, constant, len(viable_moves(grid)))
+    if forced_depth == 0:
+        d = get_depth_limit(target_secs, constant, len(viable_moves(grid)))
+    else:
+        d = forced_depth
     coord, score, final_depth = strategy(grid, func=min, depth_limit=d)
     r, c = coord
     grid[r][c] = 2
@@ -281,7 +315,7 @@ def static_evaluation(grid):
     # higher score better for human, lower score better for computer
     path_groups_human = get_path_groups(grid, 1)
     path_groups_computer = get_path_groups(grid, 2)
-    return count_unique_columns(path_groups_human) - count_unique_columns(path_groups_computer)
+    return 1.01*count_unique_columns(path_groups_human) - count_unique_columns(path_groups_computer)
 
 
 def win_loss_eval(grid) -> int or None:
@@ -290,22 +324,22 @@ def win_loss_eval(grid) -> int or None:
     if coord:
         if grid[coord[0]][coord[1]] == 1:
             # human win
-            return 1
+            return 100
         elif grid[coord[0]][coord[1]] == 2:
             # computer win
-            return -1
+            return -100
     elif is_full(grid):
         # draw
         return 0
 
 
-def get_time_constant(n, is_alpha_beta=False):
+def get_time_constant(n, player_first, is_alpha_beta=False):
     alpha = None
     beta = None
     if is_alpha_beta:
         alpha = -math.inf
         beta = math.inf
-    grid = create_grid(n)
+    grid = create_grid(n, player_first)
     move_count = len(viable_moves(grid))
     t1 = time.perf_counter()
     alpha_beta(grid, func=min, alpha=alpha, beta=beta)
@@ -344,7 +378,7 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
         return coord, score*(1/depth), depth
 
     if depth >= depth_limit:
-        return coord, 0, depth
+        return coord, static_evaluation(grid), depth
 
     moves = viable_moves(grid)
 
@@ -373,4 +407,6 @@ def alpha_beta(grid, coord=None, func=max, alpha=-math.inf, beta=math.inf, depth
 
 
 if __name__ == '__main__':
-    play_game(8)
+    n = get_size()
+    d = get_depth()
+    play_game(n, d)
