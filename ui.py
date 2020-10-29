@@ -38,6 +38,12 @@ def try_stuff(n):
     play_ui(grid, True, constant)
 
 
+def try_stuff_multiplayer(n):
+    grid = create_grid(n)
+    constant = get_time_constant(3, True)
+    play_ui_multiplayer(grid, True, constant)
+
+
 def play_ui(grid, is_players_turn, constant, depth=0):
     pygame.init()
     pygame.display.set_caption('Pathways')
@@ -61,7 +67,7 @@ def play_ui(grid, is_players_turn, constant, depth=0):
                     game_over = check_for_a_win(grid)
                     is_players_turn = False
             if event.type == pygame.MOUSEBUTTONUP and not is_players_turn:
-                generate_computer_player_move(grid, alpha_beta, constant, 1, depth)
+                generate_computer_player_move(grid, alpha_beta, constant, 10, depth)
                 game_over = check_for_a_win(grid)
                 is_players_turn = True
 
@@ -108,5 +114,49 @@ def get_rect_clicked(grid):
                 return r, c
 
 
+def play_ui_multiplayer(grid, first_players_turn, constant, depth=0):
+    pygame.init()
+    pygame.display.set_caption('Pathways')
+    screen = pygame.display.set_mode((Config.S_WIDTH, Config.S_HEIGHT))
+    title = init_title()
+
+    game_over = False
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                try:
+                    r, c = get_rect_clicked(grid)
+                except TypeError:
+                    pass
+                else:
+                    if grid[r][c] == 1 or grid[r][c] == 2 or game_over:
+                        break
+                    if first_players_turn:
+                        grid[r][c] = 1
+                        first_players_turn = False
+                    else:
+                        grid[r][c] = 2
+                        first_players_turn = True
+                    game_over = check_for_a_win(grid)
+
+            if event.type == pygame.MOUSEBUTTONUP and game_over:
+                score = win_loss_eval(grid)
+                if score > 0:
+                    end = init_end('1st Player Wins', color=(0,255,0))
+                    display_game_over(screen, end)
+                elif score == 0:
+                    end = init_end('DRAW', color=(0,0,255))
+                    display_game_over(screen, end)
+                else:
+                    end = init_end('2nd Player Wins')
+                    display_game_over(screen, end)
+
+        display_title(screen, title)
+        display_grid(grid, screen)
+        pygame.display.flip()
+
+
 if __name__ == '__main__':
-    try_stuff(6)
+    try_stuff_multiplayer(6)
