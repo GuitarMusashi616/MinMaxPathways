@@ -238,6 +238,8 @@ def generate_computer_player_move(grid, strategy, constant, target_secs, forced_
     else:
         d = forced_depth
     coord, score, final_depth = strategy(grid, func=min, depth_limit=d)
+    if not coord:
+        return
     r, c = coord
     grid[r][c] = 2
     print(f"Computer picks {r}, {c} for an estimated score of {score}\n")
@@ -410,3 +412,4 @@ if __name__ == '__main__':
     n = get_size()
     d = get_depth()
     play_game(n, d)
+
