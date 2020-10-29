@@ -44,7 +44,7 @@ def try_stuff_multiplayer(n):
     play_ui_multiplayer(grid, True, constant)
 
 
-def play_ui(grid, is_players_turn, constant, depth=0):
+def play_ui(grid, is_players_turn, constant, depth=0, target_time=5):
     pygame.init()
     pygame.display.set_caption('Pathways')
     screen = pygame.display.set_mode((Config.S_WIDTH, Config.S_HEIGHT))
@@ -67,7 +67,7 @@ def play_ui(grid, is_players_turn, constant, depth=0):
                     game_over = check_for_a_win(grid)
                     is_players_turn = False
             if event.type == pygame.MOUSEBUTTONUP and not is_players_turn:
-                generate_computer_player_move(grid, alpha_beta, constant, 10, depth)
+                generate_computer_player_move(grid, alpha_beta, constant, target_time, depth)
                 game_over = check_for_a_win(grid)
                 is_players_turn = True
 
