@@ -289,7 +289,7 @@ def static_evaluation(grid):
     # higher score better for human, lower score better for computer
     path_groups_human = get_path_groups(grid, 1)
     path_groups_computer = get_path_groups(grid, 2)
-    return 1.01*count_unique_columns(path_groups_human) - count_unique_columns(path_groups_computer)
+    return count_unique_columns(path_groups_human) - count_unique_columns(path_groups_computer)
 
 
 def win_loss_eval(grid) -> int or None:
