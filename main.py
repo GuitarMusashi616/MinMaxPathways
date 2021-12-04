@@ -3,7 +3,7 @@ from ui import *
 
 
 def main():
-    n = get_integer_input("What grid size (N) shall we use?\n", 3, 15)
+    n = get_integer_input("What grid size (N) shall we use (between 3 and 15)?\n", 3, 15)
     d = get_integer_input("What depth limit shall we use? (0 for auto)\n", 0, 100)
 
     is_players_turn = get_yes_or_no("Want to go first? (y/n)\n")
