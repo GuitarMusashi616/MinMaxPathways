@@ -1,8 +1,8 @@
 # MinMaxPathways
 Undefeated Pathways AI
-> now with *color* and *theme song*!
+now with *color* and *theme song*!
 
-Play a game against the AI
+## Play a game against the AI
 
 Setup:
 1) clone the repository
