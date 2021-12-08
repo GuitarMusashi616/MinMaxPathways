@@ -7,4 +7,4 @@ now with *color* and *theme song*!
 2) run the following:  
 ```py main.py```
 
-note: *fancy ui* mode requires *pygame*
+note: fancy ui mode requires pygame
