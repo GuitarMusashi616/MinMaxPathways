@@ -8,4 +8,4 @@ now with *color* and *theme song*!
 ```py main.py```
 
 note:  
-fancy ui mode requires pygame
+- fancy ui mode requires pygame
