@@ -6,3 +6,5 @@ now with *color* and *theme song*!
 1) clone the repository
 2) run the following:  
 ```py main.py```
+
+*note: fancy ui mode requires pygame*
