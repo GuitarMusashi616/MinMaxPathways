@@ -10,4 +10,4 @@ now with *color* and *theme song*!
 
 ### Requirements:
 - python
-- pygame if using fance ui mode
+- pygame if using fancy ui mode
